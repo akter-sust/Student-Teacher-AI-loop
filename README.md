@@ -4,7 +4,7 @@
 
 ---
 
-## 1. Executive Summary
+## 2. Executive Summary
 
 - **Pipeline Architecture:** Multimodal Student Classifier processing 1024-dimensional combined vectors (512-dim visual embeddings + 512-dim text/metadata embeddings).
 - **Training Strategy:** Fresh initialization without pre-trained student checkpoints (`student_pretrained.pth` absent).
@@ -13,7 +13,7 @@
 
 ---
 
-## 1. Dataset Overview & Data Splitting
+## 3. Dataset Overview & Data Splitting
 The dataset consists of multimodal samples categorized into positive and negative classes.
 
 * **Total Samples:** 34 images
@@ -26,7 +26,7 @@ The dataset consists of multimodal samples categorized into positive and negativ
 
 ---
 
-## 2. Zero-Shot Baseline Evaluation
+## 4. Zero-Shot Baseline Evaluation
 Prior to distillation and fine-tuning, zero-shot evaluation was performed on the evaluation dataset.
 
 * **Precision:** 0.00
@@ -35,14 +35,14 @@ Prior to distillation and fine-tuning, zero-shot evaluation was performed on the
 
 ---
 
-## 3. Teacher Supervision & Pseudo-Labeling
+## 5. Teacher Supervision & Pseudo-Labeling
 * **Teacher Model:** Large Language Model / Multimodal Teacher (Gemini)
 * **Pseudo-Label Generation:** Teacher labels extracted for all 23 training set samples.
 * **Result:** Constructed a supervised pseudo-labeled dataset of 23 records for student model distillation.
 
 ---
 
-## 4. Student Model Training Dynamics
+## 6. Student Model Training Dynamics
 The student model was trained from scratch over 30 epochs using loss feedback from teacher pseudo-labels.
 
 ### Training Loss Progress
@@ -63,7 +63,7 @@ The student model was trained from scratch over 30 epochs using loss feedback fr
 
 ---
 
-## 5. Post-Adaptation Evaluation Performance
+## 7. Post-Adaptation Evaluation Performance
 
 | Metric | Zero-Shot Baseline | Post-Training Adaptation | Absolute Gain |
 | :--- | :---: | :---: | :---: |
@@ -73,7 +73,7 @@ The student model was trained from scratch over 30 epochs using loss feedback fr
 
 ---
 
-## 6. Active Learning & Uncertainty Sampling
+## 8. Active Learning & Uncertainty Sampling
 Uncertainty sampling demo on unannotated/candidate samples:
 
 1. **Sample 1:** `Bubbling_paintedplasterboardceilingother-aID-qtu5yd5d2pxkszw9tkue9mahb.jpeg`
