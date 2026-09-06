@@ -62,7 +62,6 @@ class StudentClassifier(nn.Module):
             nn.Linear(256, hidden_dim),
             nn.ReLU(),
             nn.Linear(hidden_dim, 1),
-            nn.Sigmoid(),
         )
 
     def forward(self, x):
@@ -387,14 +386,16 @@ def run_pipeline(pos_dir: str, neg_dir: str):
     print("\n--- Active Learning Loop (Uncertainty Sampling Demo) ---")
     # Simulate scanning a new batch to route low-confidence student predictions
     student.eval()
-    for img_path in test_set:
-        emb = extract_combined_features(img_path).unsqueeze(0).to(DEVICE)
-        prob = student(emb).item()
-        print(f"Image: {os.path.basename(img_path)} | Student Prob: {prob:.3f}")
-        
-        # Uncertainty band between 0.35 and 0.65
-        if 0.35 <= prob <= 0.65:
-            print("  --> [Routed to Loop] Student uncertain. Re-querying teacher or human annotator.")
+    with torch.no_grad():
+        for img_path in test_set:
+            emb = extract_combined_features(img_path).unsqueeze(0).to(DEVICE)
+            logits = student(emb)
+            prob = torch.sigmoid(logits).item()
+            print(f"Image: {os.path.basename(img_path)} | Student Prob: {prob:.3f}")
+            
+            # Uncertainty band between 0.35 and 0.65
+            if 0.35 <= prob <= 0.65:
+                print("  --> [Routed to Loop] Student uncertain. Re-querying teacher or human annotator.")
             # teacher_res = get_or_query_teacher(img_path)
             # if teacher_res['confidence'] >= CONFIDENCE_THRESHOLD:
             #     # add it to training dataset for next iteration
@@ -402,6 +403,9 @@ def run_pipeline(pos_dir: str, neg_dir: str):
             #     # Wait for human annotator
             #     # potential noisy data
             #     # if it is good data, add it to training dataset for next iteration
+        
+
+    
 
 if __name__ == "__main__":
     # Point these to your image folders
