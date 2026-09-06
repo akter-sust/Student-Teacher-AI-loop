@@ -130,13 +130,13 @@ def extract_metadata(img_path: str) -> str:
   filename = os.path.basename(img_path)
   name_without_ext = os.path.splitext(filename)[0]
 
-  # 1. Remove hash IDs if present
+  # Remove hash IDs if present
   clean_str = re.sub(r"-aID-.*$", "", name_without_ext)
 
-  # 2. Replace underscores/hyphens with spaces
+  # Replace underscores/hyphens with spaces
   clean_str = clean_str.replace("_", " ").replace("-", " ")
 
-  # 3. Split jammed words dynamically using wordninja (handles typos naturally)
+  # Split jammed words dynamically using wordninja (handles typos naturally)
   words = []
   for chunk in clean_str.split():
     # wordninja splits "pantedplasterboard" into ["panted", "plaster", "board"]
@@ -149,19 +149,18 @@ def extract_metadata(img_path: str) -> str:
 
 def extract_combined_features(img_path):
   """Generates a 1024-dim vector: 512-dim visual vector + 512-dim text metadata vector."""
-  # 1. Image embedding (512-dim)
+  # Image embedding (512-dim)
   visual_vec = extract_image_features(img_path)
 
-  # 2. Text metadata embedding (512-dim)
+  # Text metadata embedding (512-dim)
   metadata_text = extract_metadata(img_path)
   text_vec = extract_text_features(metadata_text)
 
-  # 3. Concatenate into single 1024-dim vector
+  # Concatenate into single 1024-dim vector
   combined_x = torch.cat([visual_vec, text_vec], dim=-1)
 
   return combined_x
 
-# 2. Function to Save Checkpoints
 def save_student_checkpoint(model, optimizer, path="student_pretrained.pth"):
   """Saves model weights and optimizer state to disk."""
   checkpoint = {
@@ -169,7 +168,7 @@ def save_student_checkpoint(model, optimizer, path="student_pretrained.pth"):
       "optimizer_state": optimizer.state_dict(),
   }
   torch.save(checkpoint, path)
-  print(f"✓ Saved student model checkpoint to: {path}")
+  print(f"Saved student model checkpoint to: {path}")
 
 def load_student_checkpoint(
     model, optimizer=None, path="student_pretrained.pth", lr=1e-3
@@ -199,7 +198,7 @@ def get_or_query_teacher(image_path: str) -> dict:
         except json.JSONDecodeError:
             results = {}
 
-    # 2. Return saved output if already in file
+    # Return saved output if already in file
     if img_key in results:
         # print(f"[Loaded from JSON] Skipping API call for: {img_key}")
         return results[img_key]

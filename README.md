@@ -13,70 +13,73 @@
 
 ---
 
-## 2. Dataset Distribution & Split Inventory
+## 1. Dataset Overview & Data Splitting
+The dataset consists of multimodal samples categorized into positive and negative classes.
 
-The underlying dataset comprises **34 labeled samples** and an unlabeled reservoir, stratified as follows:
-
-| Data Subset | Positive (Defect) | Negative (Clean) | Total Samples | Class Ratio (% Pos) |
-| :--- | :---: | :---: | :---: | :---: |
-| **Training Set** | 14 | 9 | **23** | 60.87% |
-| **Evaluation Set** | 5 | 3 | **8** | 62.50% |
-| **Test Set** | 2 | 1 | **3** | 66.67% |
-| **Total Labeled Inventory** | **21** | **13** | **34** | **61.76%** |
-
-* **Constructed Pseudo-Labeled Pool:** 21 records generated for initial pre-training initialization.
+* **Total Samples:** 34 images
+  * **Positive Images:** 21
+  * **Negative Images:** 13
+* **Data Partitioning:**
+  * **Training Set:** 23 samples (14 Positive, 9 Negative)
+  * **Evaluation Set:** 8 samples (5 Positive, 3 Negative)
+  * **Test Set:** 3 samples (2 Positive, 1 Negative)
 
 ---
 
-## 3. Student Model Pre-Training Dynamics
+## 2. Zero-Shot Baseline Evaluation
+Prior to distillation and fine-tuning, zero-shot evaluation was performed on the evaluation dataset.
 
-- **Epoch Count:** 30 Epochs (Full completion without premature loss plateau triggers).
-- **Optimization Objective:** `nn.BCEWithLogitsLoss` with `pos_weight = 1.0`.
-- **Checkpoint Action:** Saved model weights to `student_pretrained.pth`.
-
-### Epoch-by-Epoch Loss Progression
-
-| Epoch | Training Loss | Epoch | Training Loss |
-| :---: | :---: | :---: | :---: |
-| **Epoch 01** | 0.7126 | **Epoch 16** | 0.6684 |
-| **Epoch 02** | 0.7112 | **Epoch 17** | 0.6610 |
-| **Epoch 03** | 0.7099 | **Epoch 18** | 0.6552 |
-| **Epoch 04** | 0.7087 | **Epoch 19** | 0.6469 |
-| **Epoch 05** | 0.7068 | **Epoch 20** | 0.6390 |
-| **Epoch 06** | 0.7049 | **Epoch 21** | 0.6323 |
-| **Epoch 07** | 0.7035 | **Epoch 22** | 0.6231 |
-| **Epoch 08** | 0.7009 | **Epoch 23** | 0.6169 |
-| **Epoch 09** | 0.6987 | **Epoch 24** | 0.6079 |
-| **Epoch 10** | 0.6952 | **Epoch 25** | 0.5999 |
-| **Epoch 11** | 0.6910 | **Epoch 26** | 0.5895 |
-| **Epoch 12** | 0.6879 | **Epoch 27** | 0.5855 |
-| **Epoch 13** | 0.6846 | **Epoch 28** | 0.5748 |
-| **Epoch 14** | 0.6815 | **Epoch 29** | 0.5652 |
-| **Epoch 15** | 0.6731 | **Epoch 30** | **0.5615** |
+* **Precision:** 0.00
+* **Recall:** 0.00
+* **F1-Score:** 0.00
 
 ---
 
-## 4. Post-Adaptation Evaluation Analysis
-
-Evaluated against the static $N=8$ validation split (5 Positives, 3 Negatives).
-
-| Metric | Score | Detailed Performance Breakdown |
-| :--- | :---: | :--- |
-| **Precision** | **1.00** | **0 False Positives.** Every image classified as a bubbling defect was a true defect. |
-| **Recall** | **0.60** | **3/5 True Defects Detected.** 2 subtle defects yielded $P < 0.50$ (False Negatives). |
-| **F1-Score** | **0.75** | Robust harmonic mean indicating well-calibrated baseline decision boundaries. |
+## 3. Teacher Supervision & Pseudo-Labeling
+* **Teacher Model:** Large Language Model / Multimodal Teacher (Gemini)
+* **Pseudo-Label Generation:** Teacher labels extracted for all 23 training set samples.
+* **Result:** Constructed a supervised pseudo-labeled dataset of 23 records for student model distillation.
 
 ---
 
-## 5. Active Learning Uncertainty Sampling Log
+## 4. Student Model Training Dynamics
+The student model was trained from scratch over 30 epochs using loss feedback from teacher pseudo-labels.
 
-Unlabeled reservoir samples evaluated during the Active Learning routing phase ($0.35 \le P \le 0.65$ routing threshold):
+### Training Loss Progress
+| Epoch | Loss | Epoch | Loss | Epoch | Loss |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| **1** | 0.6923 | **11** | 0.6216 | **21** | 0.4117 |
+| **2** | 0.6881 | **12** | 0.6080 | **22** | 0.3836 |
+| **3** | 0.6834 | **13** | 0.5899 | **23** | 0.3588 |
+| **4** | 0.6782 | **14** | 0.5755 | **24** | 0.3407 |
+| **5** | 0.6736 | **15** | 0.5568 | **25** | 0.2935 |
+| **6** | 0.6682 | **16** | 0.5362 | **26** | 0.2706 |
+| **7** | 0.6609 | **17** | 0.5158 | **27** | 0.2456 |
+| **8** | 0.6524 | **18** | 0.4851 | **28** | 0.2164 |
+| **9** | 0.6438 | **19** | 0.4698 | **29** | 0.1942 |
+| **10** | 0.6343 | **20** | 0.4388 | **30** | **0.1574** |
 
-| Sample Filename | Student Prob | Model Decision | Active Learning Routing |
-| :--- | :---: | :---: | :--- |
-| `Bubbling_paintedplasterboardceilingother-aID-qtu5yd5d2pxkszw9tkue9mahb.jpeg` | **0.683** | Defect ($y=1$) | Confident Auto-Label |
-| `Bubbling_paintedplaster_boardceilingbedroom-aID-699atnay1isbbz9iq9q9kd9bd.jpeg` | **0.683** | Defect ($y=1$) | Confident Auto-Label |
-| `Water_Stain_Bubbling___Plasterboard___Sitting-aID-hpm6ccs3k5kfspu9269eu6izd.jpg` | **0.046** | Clean ($y=0$) | Confident Auto-Label |
+* **Checkpoint Saved:** `student_pretrained.pth`
 
 ---
 
+## 5. Post-Adaptation Evaluation Performance
+
+| Metric | Zero-Shot Baseline | Post-Training Adaptation | Absolute Gain |
+| :--- | :---: | :---: | :---: |
+| **Precision** | 0.00 | **1.00** | +1.00 |
+| **Recall** | 0.00 | **0.60** | +0.60 |
+| **F1-Score** | 0.00 | **0.75** | +0.75 |
+
+---
+
+## 6. Active Learning & Uncertainty Sampling
+Uncertainty sampling demo on unannotated/candidate samples:
+
+1. **Sample 1:** `Bubbling_paintedplasterboardceilingother-aID-qtu5yd5d2pxkszw9tkue9mahb.jpeg`
+   * **Predicted Student Probability:** `0.898`
+2. **Sample 2:** `Bubbling_paintedplaster_boardceilingbedroom-aID-699atnay1isbbz9iq9q9kd9bd.jpeg`
+   * **Predicted Student Probability:** `0.831`
+3. **Sample 3:** `Water_Stain_Bubbling___Plasterboard___Sitting-aID-hpm6ccs3k5kfspu9269eu6izd.jpg`
+   * **Predicted Student Probability:** `0.197`
+   
