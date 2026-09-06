@@ -332,6 +332,7 @@ def run_pipeline(pos_dir: str, neg_dir: str):
     eval_gt = [1, 1, 1, 1, 1, 0, 0, 0]
     test_set = pos_images[5:7] + neg_images[3:4]
     training_dataset = pos_images[7:] + neg_images[4:]
+    training_data_gt = [1]*len(pos_images[7:]) + [0]*len(neg_images[4:])
     print(f"Eval Set Size: {len(eval_paths)} (5 pos, 3 neg) | Test Set Size: {len(test_set)} (2 pos, 1 neg) | Training Set Size: {len(training_dataset)} ({len(pos_images)-7} pos, {len(neg_images)-4} neg)")
 
     print("Extracting features for eval set")
@@ -352,9 +353,17 @@ def run_pipeline(pos_dir: str, neg_dir: str):
 
     print("Getting teacher labels for training set")
     for idx, img_path in enumerate(training_dataset):
+        
         print(".", end="")
         # print(f"\nProcessing Image {idx+1}/{len(training_dataset)}: {os.path.basename(img_path)}")
-        teacher_res = get_or_query_teacher(img_path)
+        if training_data_gt[idx] == -1:
+            teacher_res = get_or_query_teacher(img_path)
+        else:
+            teacher_res = {
+                "bubbling": training_data_gt[idx],
+                "confidence": 1.0,
+                "reasoning": "Ground truth label"
+            }
         # print(f"  Teacher Label: {teacher_res['bubbling']} | Conf: {teacher_res['confidence']} | Reason: {teacher_res['reasoning']}")
 
         if teacher_res['confidence'] >= CONFIDENCE_THRESHOLD:
@@ -386,6 +395,13 @@ def run_pipeline(pos_dir: str, neg_dir: str):
         # Uncertainty band between 0.35 and 0.65
         if 0.35 <= prob <= 0.65:
             print("  --> [Routed to Loop] Student uncertain. Re-querying teacher or human annotator.")
+            # teacher_res = get_or_query_teacher(img_path)
+            # if teacher_res['confidence'] >= CONFIDENCE_THRESHOLD:
+            #     # add it to training dataset for next iteration
+            # else:
+            #     # Wait for human annotator
+            #     # potential noisy data
+            #     # if it is good data, add it to training dataset for next iteration
 
 if __name__ == "__main__":
     # Point these to your image folders
