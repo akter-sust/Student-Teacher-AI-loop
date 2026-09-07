@@ -18,6 +18,56 @@ Same image or rotated image are not used in different group eval, test or traini
 --- Zero-Shot Baseline Evaluation ---
 ...................................................................................................................................
 Baseline -> Precision: 0.48, Recall: 1.00, F1: 0.65
+--- Training Student Model (Qwen2-VL LoRA) ---
+  0%|                                                                                                                | 0/441 [00:00<?, ?it/s][transformers] `use_cache=True` is incompatible with gradient checkpointing. Setting `use_cache=False`.
+{'loss': '0.0879', 'grad_norm': '0.1013', 'learning_rate': '4.898e-05', 'epoch': '0.06814'}                                                  
+{'loss': '0.03228', 'grad_norm': '0.1582', 'learning_rate': '4.785e-05', 'epoch': '0.1363'}                                                  
+{'loss': '0.02081', 'grad_norm': '0.2502', 'learning_rate': '4.671e-05', 'epoch': '0.2044'}                                                  
+{'loss': '0.03303', 'grad_norm': '1.184', 'learning_rate': '4.558e-05', 'epoch': '0.2726'}                                                   
+{'loss': '0.02689', 'grad_norm': '0.07925', 'learning_rate': '4.444e-05', 'epoch': '0.3407'}                                                 
+{'loss': '0.01572', 'grad_norm': '0.1222', 'learning_rate': '4.331e-05', 'epoch': '0.4089'}                                                  
+{'loss': '0.01044', 'grad_norm': '0.06389', 'learning_rate': '4.218e-05', 'epoch': '0.477'}                                                  
+{'loss': '0.004437', 'grad_norm': '0.05748', 'learning_rate': '4.104e-05', 'epoch': '0.5451'}                                                
+{'loss': '0.0006692', 'grad_norm': '0.004195', 'learning_rate': '3.991e-05', 'epoch': '0.6133'}                                              
+{'loss': '0.004856', 'grad_norm': '0.001724', 'learning_rate': '3.878e-05', 'epoch': '0.6814'}                                               
+{'loss': '0.006454', 'grad_norm': '0.006086', 'learning_rate': '3.764e-05', 'epoch': '0.7496'}                                               
+{'loss': '0.007372', 'grad_norm': '0.005192', 'learning_rate': '3.651e-05', 'epoch': '0.8177'}                                               
+{'loss': '0.002453', 'grad_norm': '0.002052', 'learning_rate': '3.537e-05', 'epoch': '0.8859'}                                               
+{'loss': '0.005282', 'grad_norm': '0.008842', 'learning_rate': '3.424e-05', 'epoch': '0.954'}                                                
+{'loss': '0.006974', 'grad_norm': '0.07402', 'learning_rate': '3.311e-05', 'epoch': '1.02'}                                                  
+{'loss': '0.004125', 'grad_norm': '0.005618', 'learning_rate': '3.197e-05', 'epoch': '1.089'}                                                
+{'loss': '0.001507', 'grad_norm': '0.53', 'learning_rate': '3.084e-05', 'epoch': '1.157'}                                                    
+{'loss': '0.0006817', 'grad_norm': '0.01958', 'learning_rate': '2.971e-05', 'epoch': '1.225'}                                                
+{'loss': '0.001087', 'grad_norm': '0.00241', 'learning_rate': '2.857e-05', 'epoch': '1.293'}                                                 
+{'loss': '0.0006677', 'grad_norm': '0.149', 'learning_rate': '2.744e-05', 'epoch': '1.361'}                                                  
+{'loss': '0.0001564', 'grad_norm': '0.001372', 'learning_rate': '2.63e-05', 'epoch': '1.429'}                                                
+{'loss': '0.0001832', 'grad_norm': '0.0008393', 'learning_rate': '2.517e-05', 'epoch': '1.497'}                                              
+{'loss': '0.00256', 'grad_norm': '0.003787', 'learning_rate': '2.404e-05', 'epoch': '1.566'}                                                 
+{'loss': '0.0009738', 'grad_norm': '0.1603', 'learning_rate': '2.29e-05', 'epoch': '1.634'}                                                  
+{'loss': '0.0003901', 'grad_norm': '0.001272', 'learning_rate': '2.177e-05', 'epoch': '1.702'}                                               
+{'loss': '6.885e-05', 'grad_norm': '0.002831', 'learning_rate': '2.063e-05', 'epoch': '1.77'}                                                
+{'loss': '0.001521', 'grad_norm': '0.0009417', 'learning_rate': '1.95e-05', 'epoch': '1.838'}                                                
+{'loss': '5.736e-05', 'grad_norm': '0.0006925', 'learning_rate': '1.837e-05', 'epoch': '1.906'}                                              
+{'loss': '0.00133', 'grad_norm': '0.0005832', 'learning_rate': '1.723e-05', 'epoch': '1.974'}                                                
+{'loss': '4.03e-05', 'grad_norm': '0.001409', 'learning_rate': '1.61e-05', 'epoch': '2.041'}                                                 
+{'loss': '3.617e-05', 'grad_norm': '0.0004719', 'learning_rate': '1.497e-05', 'epoch': '2.109'}                                              
+{'loss': '0.0005885', 'grad_norm': '0.000615', 'learning_rate': '1.383e-05', 'epoch': '2.177'}                                               
+{'loss': '4.126e-05', 'grad_norm': '0.0005335', 'learning_rate': '1.27e-05', 'epoch': '2.245'}                                               
+{'loss': '3.099e-05', 'grad_norm': '0.0004388', 'learning_rate': '1.156e-05', 'epoch': '2.313'}                                              
+{'loss': '7.183e-05', 'grad_norm': '0.0004909', 'learning_rate': '1.043e-05', 'epoch': '2.382'}                                              
+{'loss': '3.574e-05', 'grad_norm': '0.0004059', 'learning_rate': '9.297e-06', 'epoch': '2.45'}                                               
+{'loss': '4.453e-05', 'grad_norm': '0.0004702', 'learning_rate': '8.163e-06', 'epoch': '2.518'}                                              
+{'loss': '4.057e-05', 'grad_norm': '0.0002976', 'learning_rate': '7.029e-06', 'epoch': '2.586'}                                              
+{'loss': '3.199e-05', 'grad_norm': '0.0004', 'learning_rate': '5.896e-06', 'epoch': '2.654'}                                                 
+{'loss': '3.331e-05', 'grad_norm': '0.0007454', 'learning_rate': '4.762e-06', 'epoch': '2.722'}                                              
+{'loss': '3.606e-05', 'grad_norm': '0.0006706', 'learning_rate': '3.628e-06', 'epoch': '2.79'}                                               
+{'loss': '3.302e-05', 'grad_norm': '0.0003421', 'learning_rate': '2.494e-06', 'epoch': '2.859'}                                              
+{'loss': '3.907e-05', 'grad_norm': '0.0005736', 'learning_rate': '1.361e-06', 'epoch': '2.927'}                                              
+{'loss': '5.154e-05', 'grad_norm': '0.0007097', 'learning_rate': '2.268e-07', 'epoch': '2.995'}                                              
+{'train_runtime': '916.5', 'train_samples_per_second': '1.921', 'train_steps_per_second': '0.481', 'train_loss': '0.006395', 'epoch': '3'}   
+100%|██████████████████████████████████████████████████████████████████████████████████████████████████████| 441/441 [15:16<00:00,  2.08s/it]
+
+Saving fine-tuned model and processor to ./final_bubbling_vlm_lora...
 
 --- Post-Adaptation Evaluation ---
 ...................................................................................................................................
