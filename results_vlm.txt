@@ -166,3 +166,18 @@ Image: rotated_195_3-Bubbling_Staining___Plasterboard___Living_Room-aID-7nbpzeqs
 Image: rotated_230_3-Bubbling_Staining___Plasterboard___Living_Room-aID-7nbpzeqsqp11tkbc5558esupb.jpg | Student Prob: 1.000 | Pred: 0
 .
 Image: rotated_325_3-Bubbling_Staining___Plasterboard___Living_Room-aID-7nbpzeqsqp11tkbc5558esupb.jpg | Student Prob: 1.000 | Pred: 0
+
+--- Out-of-Distribution (OOD) Image Evaluation ---
+Loading fine-tuned checkpoint from: ./final_bubbling_vlm_lora
+Fetching 2 files: 100%|██████████████████████████████████████████████████████████████████████████████████████| 2/2 [00:00<00:00, 1180.50it/s]
+Download complete: :                                                                                                     |  0.00B            
+Reconstruction complete: |                                                                                      |  0.00B /  0.00B            
+Loading weights: 100%|███████████████████████████████████████████████████████████████████████████████████| 729/729 [00:00<00:00, 1285.74it/s]
+.
+Image: images-2.jpeg | Student Prob: 1.000 | Pred: 1
+.
+Image: new-modern-home-interior-empty-bedroom-cottage-style-vaulted-ceiling-84810977.jpg.webp | Student Prob: 1.000 | Pred: 0
+.
+Image: images.jpg | Student Prob: 1.000 | Pred: 1
+.
+Image: white-cloud-blue-sky-sea_74190-4488.jpg.jpg | Student Prob: 1.000 | Pred: 0

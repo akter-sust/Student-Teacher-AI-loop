@@ -1,5 +1,5 @@
 import os
-
+# Environment configurations
 BASE_CACHE = "/mnt/data/cache"
 os.environ["HF_HOME"] = f"{BASE_CACHE}/huggingface"
 os.environ["HF_HUB_CACHE"] = f"{BASE_CACHE}/huggingface/hub"
@@ -36,6 +36,9 @@ import wordninja
 
 
 
+# ---------------------------------------------------------------------------
+# 1. Configuration & Global Setup
+# ---------------------------------------------------------------------------
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 CONCEPT_NAME = "bubbling"
 CONCEPT_DEF = (
@@ -76,6 +79,9 @@ training_args = TrainingArguments(
 )
 
 
+# ---------------------------------------------------------------------------
+# 2. Pydantic Models
+# ---------------------------------------------------------------------------
 class DefectPrediction(BaseModel):
     bubbling: bool = Field(
         description="Whether bubbling surface defect is present"
@@ -112,6 +118,9 @@ class StudentDefectResponse(BaseModel):
         return max(0.0, min(1.0, val))
 
 
+# ---------------------------------------------------------------------------
+# 3. Model Loaders & Helpers
+# ---------------------------------------------------------------------------
 def initialize_fresh_student_model():
     """Instantiates base student model and wraps with LoRA adapters."""
     qwen_model = Qwen2VLForConditionalGeneration.from_pretrained(
@@ -138,6 +147,7 @@ def initialize_fresh_student_model():
 
 
 def load_fine_tuned_student_model(save_directory: str):
+    """Loads fine-tuned LoRA weights onto base Qwen2-VL model."""
     print(f"Loading fine-tuned checkpoint from: {save_directory}")
     base_model = Qwen2VLForConditionalGeneration.from_pretrained(
         STUDENT_MODEL_ID,
@@ -149,8 +159,11 @@ def load_fine_tuned_student_model(save_directory: str):
     return model
 
 
+# ---------------------------------------------------------------------------
+# 4. Data Collator & Dataset
+# ---------------------------------------------------------------------------
 class Qwen2VLDataCollator:
-    """Data Collator for VLM fine tuning"""
+
     def __init__(self, processor):
         self.processor = processor
         self.image_token_ids = [
@@ -208,7 +221,7 @@ class Qwen2VLDataCollator:
 
 
 class VLMDataset(TorchDataset):
-    """Dataset for VLM fine-tuning"""
+
     def __init__(self, raw_records, processor):
         self.records = raw_records
         self.processor = processor
@@ -290,8 +303,10 @@ def create_formatted_train_dataset(image_paths: list, labels: list, processor) -
     return VLMDataset(raw_records, processor)
 
 
+# ---------------------------------------------------------------------------
+# 5. Teacher VLM (Gemini) Routine
+# ---------------------------------------------------------------------------
 def get_or_query_teacher(image_path: str) -> dict:
-    """Queries Gemini VLM with structured prompt and JSON response schema."""
     path_obj = Path(image_path)
     img_key = path_obj.name
     results = {}
@@ -336,6 +351,9 @@ def get_or_query_teacher(image_path: str) -> dict:
         return {"bubbling": False, "confidence": 0.0, "reasoning": "API Error"}
 
 
+# ---------------------------------------------------------------------------
+# 6. Student Fine-tuning, Prediction & Evaluation
+# ---------------------------------------------------------------------------
 def fine_tune_student(model, formatted_train_dataset, save_path=SAVED_MODEL_DIR):
     """Fine-tunes the model and explicitly saves LoRA weights + processor."""
     data_collator = Qwen2VLDataCollator(student_processor)
@@ -393,6 +411,7 @@ def predict_single_image(model, image_path: str) -> tuple[float, int]:
         generated_ids_trimmed, skip_special_tokens=True
     )[0].strip()
 
+    # Attempt parsing with Pydantic
     try:
         json_match = re.search(r"\{.*?\}", response_text, re.DOTALL)
         if json_match:
@@ -402,7 +421,7 @@ def predict_single_image(model, image_path: str) -> tuple[float, int]:
     except Exception:
         pass
 
-    # regex fallback if JSON structure fails
+    # Robust regex fallback if JSON structure fails
     cleaned_text = response_text.upper()
     if "YES" in cleaned_text:
         return 0.85, 1
@@ -450,6 +469,9 @@ def construct_dataset(pos_dir: str, neg_dir: str, category: str) -> tuple[list, 
     return dataset_paths, dataset_gt
 
 
+# ---------------------------------------------------------------------------
+# 7. Execution Pipeline
+# ---------------------------------------------------------------------------
 def run_pipeline(pos_dir: str, neg_dir: str):
     print("\n--- Initializing Base Student Model ---")
     student_model = initialize_fresh_student_model()
@@ -509,6 +531,7 @@ def run_pipeline(pos_dir: str, neg_dir: str):
     print("\n--- Training Student Model (Qwen2-VL LoRA) ---")
     fine_tune_student(student_model, formatted_train_dataset, save_path=SAVED_MODEL_DIR)
 
+    # Completely unload model from GPU to ensure clean evaluate reload
     print("\n--- Unloading training model and clearing CUDA memory ---")
     del student_model
     gc.collect()
@@ -534,9 +557,21 @@ def run_pipeline(pos_dir: str, neg_dir: str):
         if 0.35 <= prob <= 0.65:
             print("  --> [Routed to Teacher] Student uncertain. Re-querying teacher VLM...")
 
+def test_ood_images():
+    print("\n--- Out-of-Distribution (OOD) Image Evaluation ---")
+    eval_student_model = load_fine_tuned_student_model(SAVED_MODEL_DIR)
+    ood_image_paths = glob.glob("./OOD data/*.*")
+
+    for img_path in ood_image_paths:
+        prob, pred = predict_single_image(eval_student_model, img_path)
+        print(
+            f"\nImage: {os.path.basename(img_path)} | Student Prob: {prob:.3f} | Pred: {pred}"
+        )
 
 if __name__ == "__main__":
     POS_DIR = "./train-bubbling"
     NEG_DIR = "./hard-negatives-bubbling"
 
     run_pipeline(POS_DIR, NEG_DIR)
+
+    test_ood_images()

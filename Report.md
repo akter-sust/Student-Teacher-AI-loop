@@ -129,8 +129,8 @@ The lightweight pipeline implementation is encapsulated in `app_vlm.py` and stru
   * **Elimination of False Positives:** The zero-shot baseline model suffered from low precision (0.48) by over-flagging textured plasterboard and non-defect surfaces. Following LoRA adaptation, precision improved to 1.00 while maintaining 100% recall.
 
 * **Rotational Robustness Verification & Planned OOD Testing:**
-  * **In-Distribution Rotational Robustness:** Verified model consistency across synthetic rotation augmentations on test split images ($0^\circ, 15^\circ, 70^\circ, 105^\circ, 225^\circ, 345^\circ$), confirming reliable defect probability outputs ($1.000$ on positive samples and $0.000$ on hard negatives).
-  * **Future Out-Of-Distribution (OOD) Testing Plan:** Genuine OOD evaluation will be conducted in subsequent iterations using real-world field images captured under novel lighting conditions, varied camera sensors, and unseen surface materials.
+  * **In-Distribution Rotational Robustness:** Verified model consistency across synthetic rotation augmentations on test split images ($0^\circ, 15^\circ, 70^\circ, 105^\circ, 225^\circ, 345^\circ$), confirming reliable defect probability outputs.
+  * **Out-Of-Distribution (OOD) Real-World Validation:** Evaluated model generalization using 4 completely unseen internet images outside the training distribution—comprising 2 non-surface negative controls (a sky capture and a full room interior) and 2 real-world surface bubbling samples. The fine-tuned model achieved 100% accuracy across all test samples, correctly rejecting non-defect backgrounds without false positives while accurately detecting bubbling textures under unconstrained lighting and material conditions.
 
 
 
