@@ -36,9 +36,6 @@ import wordninja
 
 
 
-# ---------------------------------------------------------------------------
-# 1. Configuration & Global Setup
-# ---------------------------------------------------------------------------
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 CONCEPT_NAME = "bubbling"
 CONCEPT_DEF = (
@@ -79,9 +76,6 @@ training_args = TrainingArguments(
 )
 
 
-# ---------------------------------------------------------------------------
-# 2. Pydantic Models
-# ---------------------------------------------------------------------------
 class DefectPrediction(BaseModel):
     bubbling: bool = Field(
         description="Whether bubbling surface defect is present"
@@ -118,9 +112,7 @@ class StudentDefectResponse(BaseModel):
         return max(0.0, min(1.0, val))
 
 
-# ---------------------------------------------------------------------------
-# 3. Model Loaders & Helpers
-# ---------------------------------------------------------------------------
+# Model Loaders & Helpers
 def initialize_fresh_student_model():
     """Instantiates base student model and wraps with LoRA adapters."""
     qwen_model = Qwen2VLForConditionalGeneration.from_pretrained(
@@ -147,7 +139,6 @@ def initialize_fresh_student_model():
 
 
 def load_fine_tuned_student_model(save_directory: str):
-    """Loads fine-tuned LoRA weights onto base Qwen2-VL model."""
     print(f"Loading fine-tuned checkpoint from: {save_directory}")
     base_model = Qwen2VLForConditionalGeneration.from_pretrained(
         STUDENT_MODEL_ID,
@@ -159,9 +150,7 @@ def load_fine_tuned_student_model(save_directory: str):
     return model
 
 
-# ---------------------------------------------------------------------------
-# 4. Data Collator & Dataset
-# ---------------------------------------------------------------------------
+# Data Collator & Dataset
 class Qwen2VLDataCollator:
 
     def __init__(self, processor):
@@ -303,9 +292,7 @@ def create_formatted_train_dataset(image_paths: list, labels: list, processor) -
     return VLMDataset(raw_records, processor)
 
 
-# ---------------------------------------------------------------------------
-# 5. Teacher VLM (Gemini) Routine
-# ---------------------------------------------------------------------------
+# Teacher VLM (Gemini) Routine
 def get_or_query_teacher(image_path: str) -> dict:
     path_obj = Path(image_path)
     img_key = path_obj.name
@@ -351,9 +338,7 @@ def get_or_query_teacher(image_path: str) -> dict:
         return {"bubbling": False, "confidence": 0.0, "reasoning": "API Error"}
 
 
-# ---------------------------------------------------------------------------
-# 6. Student Fine-tuning, Prediction & Evaluation
-# ---------------------------------------------------------------------------
+# Student Fine-tuning, Prediction & Evaluation
 def fine_tune_student(model, formatted_train_dataset, save_path=SAVED_MODEL_DIR):
     """Fine-tunes the model and explicitly saves LoRA weights + processor."""
     data_collator = Qwen2VLDataCollator(student_processor)
@@ -411,7 +396,6 @@ def predict_single_image(model, image_path: str) -> tuple[float, int]:
         generated_ids_trimmed, skip_special_tokens=True
     )[0].strip()
 
-    # Attempt parsing with Pydantic
     try:
         json_match = re.search(r"\{.*?\}", response_text, re.DOTALL)
         if json_match:
@@ -421,7 +405,7 @@ def predict_single_image(model, image_path: str) -> tuple[float, int]:
     except Exception:
         pass
 
-    # Robust regex fallback if JSON structure fails
+    # regex fallback if JSON structure fails
     cleaned_text = response_text.upper()
     if "YES" in cleaned_text:
         return 0.85, 1
@@ -469,9 +453,7 @@ def construct_dataset(pos_dir: str, neg_dir: str, category: str) -> tuple[list, 
     return dataset_paths, dataset_gt
 
 
-# ---------------------------------------------------------------------------
-# 7. Execution Pipeline
-# ---------------------------------------------------------------------------
+# Execution Pipeline
 def run_pipeline(pos_dir: str, neg_dir: str):
     print("\n--- Initializing Base Student Model ---")
     student_model = initialize_fresh_student_model()
