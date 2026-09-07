@@ -1,5 +1,5 @@
 import os
-# Environment configurations
+
 BASE_CACHE = "/mnt/data/cache"
 os.environ["HF_HOME"] = f"{BASE_CACHE}/huggingface"
 os.environ["HF_HUB_CACHE"] = f"{BASE_CACHE}/huggingface/hub"
@@ -112,7 +112,6 @@ class StudentDefectResponse(BaseModel):
         return max(0.0, min(1.0, val))
 
 
-# Model Loaders & Helpers
 def initialize_fresh_student_model():
     """Instantiates base student model and wraps with LoRA adapters."""
     qwen_model = Qwen2VLForConditionalGeneration.from_pretrained(
@@ -150,9 +149,8 @@ def load_fine_tuned_student_model(save_directory: str):
     return model
 
 
-# Data Collator & Dataset
 class Qwen2VLDataCollator:
-
+    """Data Collator for VLM fine tuning"""
     def __init__(self, processor):
         self.processor = processor
         self.image_token_ids = [
@@ -210,7 +208,7 @@ class Qwen2VLDataCollator:
 
 
 class VLMDataset(TorchDataset):
-
+    """Dataset for VLM fine-tuning"""
     def __init__(self, raw_records, processor):
         self.records = raw_records
         self.processor = processor
@@ -292,8 +290,8 @@ def create_formatted_train_dataset(image_paths: list, labels: list, processor) -
     return VLMDataset(raw_records, processor)
 
 
-# Teacher VLM (Gemini) Routine
 def get_or_query_teacher(image_path: str) -> dict:
+    """Queries Gemini VLM with structured prompt and JSON response schema."""
     path_obj = Path(image_path)
     img_key = path_obj.name
     results = {}
@@ -319,7 +317,7 @@ def get_or_query_teacher(image_path: str) -> dict:
     try:
         image = Image.open(image_path)
         response = gemini_client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-3.5-flash",
             contents=[image, prompt],
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
@@ -338,7 +336,6 @@ def get_or_query_teacher(image_path: str) -> dict:
         return {"bubbling": False, "confidence": 0.0, "reasoning": "API Error"}
 
 
-# Student Fine-tuning, Prediction & Evaluation
 def fine_tune_student(model, formatted_train_dataset, save_path=SAVED_MODEL_DIR):
     """Fine-tunes the model and explicitly saves LoRA weights + processor."""
     data_collator = Qwen2VLDataCollator(student_processor)
@@ -453,7 +450,6 @@ def construct_dataset(pos_dir: str, neg_dir: str, category: str) -> tuple[list, 
     return dataset_paths, dataset_gt
 
 
-# Execution Pipeline
 def run_pipeline(pos_dir: str, neg_dir: str):
     print("\n--- Initializing Base Student Model ---")
     student_model = initialize_fresh_student_model()
@@ -513,7 +509,6 @@ def run_pipeline(pos_dir: str, neg_dir: str):
     print("\n--- Training Student Model (Qwen2-VL LoRA) ---")
     fine_tune_student(student_model, formatted_train_dataset, save_path=SAVED_MODEL_DIR)
 
-    # Completely unload model from GPU to ensure clean evaluate reload
     print("\n--- Unloading training model and clearing CUDA memory ---")
     del student_model
     gc.collect()
