@@ -1,0 +1,118 @@
+--- Loading & Splitting Data ---
+* **Total Samples:** 34 images
+  * **Positive Images:** 21
+  * **Negative Images:** 13
+* **Data Partitioning:**
+  * **Training Set:** 23 samples (14 Positive, 9 Negative)
+  * **Evaluation Set:** 8 samples (5 Positive, 3 Negative)
+  * **Test Set:** 3 samples (2 Positive, 1 Negative)
+
+After rotating each image randomly, 20 different angle for positive image and 22 different angle for negative image
+Synthetic data: Positive images: 441 | Negative images: 299
+Synthetic data: Eval Set Size: 131 (63 pos, 68 neg) | Test Set Size: 44 (21 pos, 23 neg) | Training Set Size: 587 (357 pos, 230 neg)
+original data: Positive images: 21 | Negative images: 13
+Original data: Eval Set Size: 6 (3 pos, 3 neg) | Test Set Size: 2 (1 pos, 1 neg) | Training Set Size: 14 (17 pos, 9 neg)
+
+Same image or rotated image are not used in different group eval, test or training. if a image is selected for any group, its rotated image of that image also selected for that grooup.
+
+--- Zero-Shot Baseline Evaluation ---
+...................................................................................................................................
+Baseline -> Precision: 0.48, Recall: 1.00, F1: 0.65
+
+--- Post-Adaptation Evaluation ---
+...................................................................................................................................
+Post-Train -> Precision: 1.00, Recall: 1.00, F1: 1.00
+
+
+--- Active Learning Loop (Uncertainty Sampling Demo) ---
+test_Bubbling_ACM_Laundry-aID-aa7rx6e831h7ab68mqeyzmd4a.jpg --> ground truth positive
+test_3-Bubbling_Staining___Plasterboard___Living_Room-aID-7nbpzeqsqp11tkbc5558esupb.jpg  negative
+
+.
+Image: test_Bubbling_ACM_Laundry-aID-aa7rx6e831h7ab68mqeyzmd4a.jpg | Student Prob: 1.000 | Pred: 1
+.
+Image: rotated_225_Bubbling_ACM_Laundry-aID-aa7rx6e831h7ab68mqeyzmd4a.jpg | Student Prob: 1.000 | Pred: 1
+.
+Image: rotated_260_Bubbling_ACM_Laundry-aID-aa7rx6e831h7ab68mqeyzmd4a.jpg | Student Prob: 1.000 | Pred: 1
+.
+Image: rotated_75_Bubbling_ACM_Laundry-aID-aa7rx6e831h7ab68mqeyzmd4a.jpg | Student Prob: 1.000 | Pred: 1
+.
+Image: rotated_170_Bubbling_ACM_Laundry-aID-aa7rx6e831h7ab68mqeyzmd4a.jpg | Student Prob: 1.000 | Pred: 1
+.
+Image: rotated_330_Bubbling_ACM_Laundry-aID-aa7rx6e831h7ab68mqeyzmd4a.jpg | Student Prob: 1.000 | Pred: 1
+.
+Image: rotated_290_Bubbling_ACM_Laundry-aID-aa7rx6e831h7ab68mqeyzmd4a.jpg | Student Prob: 1.000 | Pred: 1
+.
+Image: rotated_105_Bubbling_ACM_Laundry-aID-aa7rx6e831h7ab68mqeyzmd4a.jpg | Student Prob: 1.000 | Pred: 1
+.
+Image: rotated_130_Bubbling_ACM_Laundry-aID-aa7rx6e831h7ab68mqeyzmd4a.jpg | Student Prob: 1.000 | Pred: 1
+.
+Image: rotated_190_Bubbling_ACM_Laundry-aID-aa7rx6e831h7ab68mqeyzmd4a.jpg | Student Prob: 1.000 | Pred: 1
+.
+Image: rotated_20_Bubbling_ACM_Laundry-aID-aa7rx6e831h7ab68mqeyzmd4a.jpg | Student Prob: 1.000 | Pred: 1
+.
+Image: rotated_0_Bubbling_ACM_Laundry-aID-aa7rx6e831h7ab68mqeyzmd4a.jpg | Student Prob: 1.000 | Pred: 1
+.
+Image: rotated_345_Bubbling_ACM_Laundry-aID-aa7rx6e831h7ab68mqeyzmd4a.jpg | Student Prob: 1.000 | Pred: 1
+.
+Image: rotated_70_Bubbling_ACM_Laundry-aID-aa7rx6e831h7ab68mqeyzmd4a.jpg | Student Prob: 1.000 | Pred: 1
+.
+Image: rotated_15_Bubbling_ACM_Laundry-aID-aa7rx6e831h7ab68mqeyzmd4a.jpg | Student Prob: 1.000 | Pred: 1
+.
+Image: rotated_150_Bubbling_ACM_Laundry-aID-aa7rx6e831h7ab68mqeyzmd4a.jpg | Student Prob: 1.000 | Pred: 1
+.
+Image: rotated_270_Bubbling_ACM_Laundry-aID-aa7rx6e831h7ab68mqeyzmd4a.jpg | Student Prob: 1.000 | Pred: 1
+.
+Image: rotated_65_Bubbling_ACM_Laundry-aID-aa7rx6e831h7ab68mqeyzmd4a.jpg | Student Prob: 1.000 | Pred: 1
+.
+Image: rotated_115_Bubbling_ACM_Laundry-aID-aa7rx6e831h7ab68mqeyzmd4a.jpg | Student Prob: 1.000 | Pred: 1
+.
+Image: rotated_155_Bubbling_ACM_Laundry-aID-aa7rx6e831h7ab68mqeyzmd4a.jpg | Student Prob: 1.000 | Pred: 1
+.
+Image: rotated_250_Bubbling_ACM_Laundry-aID-aa7rx6e831h7ab68mqeyzmd4a.jpg | Student Prob: 1.000 | Pred: 1
+.
+Image: test_3-Bubbling_Staining___Plasterboard___Living_Room-aID-7nbpzeqsqp11tkbc5558esupb.jpg | Student Prob: 1.000 | Pred: 0
+.
+Image: rotated_105_3-Bubbling_Staining___Plasterboard___Living_Room-aID-7nbpzeqsqp11tkbc5558esupb.jpg | Student Prob: 1.000 | Pred: 0
+.
+Image: rotated_55_3-Bubbling_Staining___Plasterboard___Living_Room-aID-7nbpzeqsqp11tkbc5558esupb.jpg | Student Prob: 1.000 | Pred: 0
+.
+Image: rotated_35_3-Bubbling_Staining___Plasterboard___Living_Room-aID-7nbpzeqsqp11tkbc5558esupb.jpg | Student Prob: 1.000 | Pred: 0
+.
+Image: rotated_300_3-Bubbling_Staining___Plasterboard___Living_Room-aID-7nbpzeqsqp11tkbc5558esupb.jpg | Student Prob: 1.000 | Pred: 0
+.
+Image: rotated_0_3-Bubbling_Staining___Plasterboard___Living_Room-aID-7nbpzeqsqp11tkbc5558esupb.jpg | Student Prob: 1.000 | Pred: 0
+.
+Image: rotated_140_3-Bubbling_Staining___Plasterboard___Living_Room-aID-7nbpzeqsqp11tkbc5558esupb.jpg | Student Prob: 1.000 | Pred: 0
+.
+Image: rotated_345_3-Bubbling_Staining___Plasterboard___Living_Room-aID-7nbpzeqsqp11tkbc5558esupb.jpg | Student Prob: 1.000 | Pred: 0
+.
+Image: rotated_225_3-Bubbling_Staining___Plasterboard___Living_Room-aID-7nbpzeqsqp11tkbc5558esupb.jpg | Student Prob: 1.000 | Pred: 0
+.
+Image: rotated_75_3-Bubbling_Staining___Plasterboard___Living_Room-aID-7nbpzeqsqp11tkbc5558esupb.jpg | Student Prob: 1.000 | Pred: 0
+.
+Image: rotated_350_3-Bubbling_Staining___Plasterboard___Living_Room-aID-7nbpzeqsqp11tkbc5558esupb.jpg | Student Prob: 1.000 | Pred: 0
+.
+Image: rotated_170_3-Bubbling_Staining___Plasterboard___Living_Room-aID-7nbpzeqsqp11tkbc5558esupb.jpg | Student Prob: 1.000 | Pred: 0
+.
+Image: rotated_150_3-Bubbling_Staining___Plasterboard___Living_Room-aID-7nbpzeqsqp11tkbc5558esupb.jpg | Student Prob: 1.000 | Pred: 0
+.
+Image: rotated_340_3-Bubbling_Staining___Plasterboard___Living_Room-aID-7nbpzeqsqp11tkbc5558esupb.jpg | Student Prob: 1.000 | Pred: 0
+.
+Image: rotated_135_3-Bubbling_Staining___Plasterboard___Living_Room-aID-7nbpzeqsqp11tkbc5558esupb.jpg | Student Prob: 1.000 | Pred: 0
+.
+Image: rotated_190_3-Bubbling_Staining___Plasterboard___Living_Room-aID-7nbpzeqsqp11tkbc5558esupb.jpg | Student Prob: 1.000 | Pred: 0
+.
+Image: rotated_60_3-Bubbling_Staining___Plasterboard___Living_Room-aID-7nbpzeqsqp11tkbc5558esupb.jpg | Student Prob: 1.000 | Pred: 0
+.
+Image: rotated_255_3-Bubbling_Staining___Plasterboard___Living_Room-aID-7nbpzeqsqp11tkbc5558esupb.jpg | Student Prob: 1.000 | Pred: 0
+.
+Image: rotated_260_3-Bubbling_Staining___Plasterboard___Living_Room-aID-7nbpzeqsqp11tkbc5558esupb.jpg | Student Prob: 1.000 | Pred: 0
+.
+Image: rotated_240_3-Bubbling_Staining___Plasterboard___Living_Room-aID-7nbpzeqsqp11tkbc5558esupb.jpg | Student Prob: 1.000 | Pred: 0
+.
+Image: rotated_195_3-Bubbling_Staining___Plasterboard___Living_Room-aID-7nbpzeqsqp11tkbc5558esupb.jpg | Student Prob: 1.000 | Pred: 0
+.
+Image: rotated_230_3-Bubbling_Staining___Plasterboard___Living_Room-aID-7nbpzeqsqp11tkbc5558esupb.jpg | Student Prob: 1.000 | Pred: 0
+.
+Image: rotated_325_3-Bubbling_Staining___Plasterboard___Living_Room-aID-7nbpzeqsqp11tkbc5558esupb.jpg | Student Prob: 1.000 | Pred: 0
