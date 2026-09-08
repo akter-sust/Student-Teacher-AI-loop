@@ -33,7 +33,7 @@ synctech/
 ├── resize_images.py          # Utility script for standardizing image resolutions
 ├── synthetic_data.py         # Utility script for generating rotated data augmentations
 ├── results_vlm.txt           # Benchmark output logs and pipeline results for VLM based student model
-└── TEST_REQUIREMENTS.md      # Testing and validation specifications
+└── TEST_REQUIREMENTS.md      # Requirement specifications from synctech.io
 ```
 
 ---
