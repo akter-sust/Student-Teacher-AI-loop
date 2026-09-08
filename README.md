@@ -21,7 +21,7 @@ The architecture combines a powerful **Teacher VLM** (Gemini 3.5 Flash via Googl
 
 ```text
 synctech/
-├── train-bubbling/           # Positive defect image samples (and rotated augmentations).
+├── train-bubbling/           # Positive defect image samples.
 ├── hard-negatives-bubbling/  # Negative/hard-negative image samples.
 ├── OOD-data/                 # Out-of-Distribution data samples.
 ├── app_vlm.py                # VLM based student model
