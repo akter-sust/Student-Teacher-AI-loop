@@ -561,7 +561,7 @@ def run_pipeline(pos_dir: str, neg_dir: str):
 def test_ood_images():
     print("\n--- Out-of-Distribution (OOD) Image Evaluation ---")
     eval_student_model = load_fine_tuned_student_model(SAVED_MODEL_DIR)
-    ood_image_paths = glob.glob("./OOD data/*.*")
+    ood_image_paths = glob.glob("./OOD-data/*.*")
 
     for img_path in ood_image_paths:
         prob, pred = predict_single_image(eval_student_model, img_path)
