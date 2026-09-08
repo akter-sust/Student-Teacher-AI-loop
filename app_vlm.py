@@ -1,5 +1,4 @@
 import os
-# Environment configurations
 BASE_CACHE = "/mnt/data/cache"
 os.environ["HF_HOME"] = f"{BASE_CACHE}/huggingface"
 os.environ["HF_HUB_CACHE"] = f"{BASE_CACHE}/huggingface/hub"
@@ -31,14 +30,13 @@ from transformers import (
     Qwen2VLProcessor,
     Trainer,
     TrainingArguments,
+    EarlyStoppingCallback,
 )
 import wordninja
 
 
 
-# ---------------------------------------------------------------------------
-# 1. Configuration & Global Setup
-# ---------------------------------------------------------------------------
+# Configuration & Global Setup
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 CONCEPT_NAME = "bubbling"
 CONCEPT_DEF = (
@@ -70,18 +68,23 @@ training_args = TrainingArguments(
     num_train_epochs=3,
     bf16=True,
     gradient_checkpointing=True,
-    save_strategy="epoch",
+    save_strategy="steps",
     report_to="none",
     optim="adamw_torch_fused",
     remove_unused_columns=False,
     dataloader_num_workers=4,
     dataloader_pin_memory=True,
+    eval_strategy="steps",            
+    eval_steps=50,                    
+    save_steps=50,                    
+    save_total_limit=2,               
+    load_best_model_at_end=True,      
+    metric_for_best_model="eval_loss",
+    greater_is_better=False,          
 )
 
 
-# ---------------------------------------------------------------------------
-# 2. Pydantic Models
-# ---------------------------------------------------------------------------
+# Pydantic Models
 class DefectPrediction(BaseModel):
     bubbling: bool = Field(
         description="Whether bubbling surface defect is present"
@@ -118,9 +121,7 @@ class StudentDefectResponse(BaseModel):
         return max(0.0, min(1.0, val))
 
 
-# ---------------------------------------------------------------------------
-# 3. Model Loaders & Helpers
-# ---------------------------------------------------------------------------
+# Model Loaders & Helpers
 def initialize_fresh_student_model():
     """Instantiates base student model and wraps with LoRA adapters."""
     qwen_model = Qwen2VLForConditionalGeneration.from_pretrained(
@@ -159,9 +160,7 @@ def load_fine_tuned_student_model(save_directory: str):
     return model
 
 
-# ---------------------------------------------------------------------------
-# 4. Data Collator & Dataset
-# ---------------------------------------------------------------------------
+# Data Collator & Dataset
 class Qwen2VLDataCollator:
 
     def __init__(self, processor):
@@ -303,9 +302,7 @@ def create_formatted_train_dataset(image_paths: list, labels: list, processor) -
     return VLMDataset(raw_records, processor)
 
 
-# ---------------------------------------------------------------------------
-# 5. Teacher VLM (Gemini) Routine
-# ---------------------------------------------------------------------------
+# Teacher VLM (Gemini) Routine
 def get_or_query_teacher(image_path: str) -> dict:
     path_obj = Path(image_path)
     img_key = path_obj.name
@@ -351,10 +348,8 @@ def get_or_query_teacher(image_path: str) -> dict:
         return {"bubbling": False, "confidence": 0.0, "reasoning": "API Error"}
 
 
-# ---------------------------------------------------------------------------
-# 6. Student Fine-tuning, Prediction & Evaluation
-# ---------------------------------------------------------------------------
-def fine_tune_student(model, formatted_train_dataset, save_path=SAVED_MODEL_DIR):
+# Student Fine-tuning, Prediction & Evaluation
+def fine_tune_student(model, formatted_train_dataset, formatted_eval_dataset, save_path=SAVED_MODEL_DIR):
     """Fine-tunes the model and explicitly saves LoRA weights + processor."""
     data_collator = Qwen2VLDataCollator(student_processor)
 
@@ -362,7 +357,14 @@ def fine_tune_student(model, formatted_train_dataset, save_path=SAVED_MODEL_DIR)
         model=model,
         args=training_args,
         train_dataset=formatted_train_dataset,
+        eval_dataset=formatted_eval_dataset,
         data_collator=data_collator,
+        callbacks=[
+            EarlyStoppingCallback(
+                early_stopping_patience=3,   # Stops training if eval_loss fails to improve 3 times in a row
+                early_stopping_threshold=0.0 # Minimum required change to qualify as an improvement
+            )
+        ],
     )
 
     trainer.train()
@@ -411,7 +413,6 @@ def predict_single_image(model, image_path: str) -> tuple[float, int]:
         generated_ids_trimmed, skip_special_tokens=True
     )[0].strip()
 
-    # Attempt parsing with Pydantic
     try:
         json_match = re.search(r"\{.*?\}", response_text, re.DOTALL)
         if json_match:
@@ -421,7 +422,7 @@ def predict_single_image(model, image_path: str) -> tuple[float, int]:
     except Exception:
         pass
 
-    # Robust regex fallback if JSON structure fails
+    # regex fallback if JSON structure fails
     cleaned_text = response_text.upper()
     if "YES" in cleaned_text:
         return 0.85, 1
@@ -469,9 +470,7 @@ def construct_dataset(pos_dir: str, neg_dir: str, category: str) -> tuple[list, 
     return dataset_paths, dataset_gt
 
 
-# ---------------------------------------------------------------------------
-# 7. Execution Pipeline
-# ---------------------------------------------------------------------------
+# Execution Pipeline
 def run_pipeline(pos_dir: str, neg_dir: str):
     print("\n--- Initializing Base Student Model ---")
     student_model = initialize_fresh_student_model()
@@ -527,11 +526,13 @@ def run_pipeline(pos_dir: str, neg_dir: str):
     formatted_train_dataset = create_formatted_train_dataset(
         train_image_paths, train_labels, student_processor
     )
+    formatted_eval_dataset = create_formatted_train_dataset(
+        eval_paths, eval_gt, student_processor
+    )
 
     print("\n--- Training Student Model (Qwen2-VL LoRA) ---")
-    fine_tune_student(student_model, formatted_train_dataset, save_path=SAVED_MODEL_DIR)
+    fine_tune_student(student_model, formatted_train_dataset, formatted_eval_dataset,save_path=SAVED_MODEL_DIR)
 
-    # Completely unload model from GPU to ensure clean evaluate reload
     print("\n--- Unloading training model and clearing CUDA memory ---")
     del student_model
     gc.collect()

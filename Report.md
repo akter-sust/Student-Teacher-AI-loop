@@ -102,11 +102,12 @@ The lightweight pipeline implementation is encapsulated in `app_vlm.py` and stru
   | Metric | Value |
   | :--- | :--- |
   | **Total Training Steps** | 441 steps (100% completion) |
-  | **Training Runtime** | 916.5 seconds (~15 mins 16 secs) |
-  | **Throughput** | 1.938 samples/sec (0.485 steps/sec) |
-  | **Final Overall Training Loss** | `0.006395` |
-  | **Final Step Loss (Epoch 2.995)** | `5.154e-05` |
-  | **Final Step Gradient Norm** | `0.0007097` |
+  | **Training Runtime** | 1029 seconds (~17 mins 9 secs) |
+  | **Throughput** | 1.711 samples/sec (0.428 steps/sec) |
+  | **Final Overall Training Loss** | `0.006366` |
+  | **Final Step Loss (Epoch 2.995)** | `4.213e-05` |
+  | **Final Step Gradient Norm** | `0.001512` |
+  
 
  
 * **Before / After Performance Comparison:**
