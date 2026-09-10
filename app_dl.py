@@ -15,9 +15,6 @@ from torch.utils.data import DataLoader, Dataset
 import re
 import wordninja
 
-# ---------------------------------------------------------------------------
-# 1. Configuration & Initializations
-# ---------------------------------------------------------------------------
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 CONCEPT_NAME = "bubbling"
 CONCEPT_DEF = (
@@ -34,10 +31,6 @@ clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 gemini_client = genai.Client() # set GEMINI_API_KEY in your environment
 TEACHER_RESULTS_FILE = Path("teacher_results.json")
 
-
-# ---------------------------------------------------------------------------
-# 2. Student Model Architecture (Lightweight Classifier Head)
-# ---------------------------------------------------------------------------
 class StudentClassifier(nn.Module):
     def __init__(
         self,
