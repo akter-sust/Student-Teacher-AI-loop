@@ -33,6 +33,7 @@ from transformers import (
     EarlyStoppingCallback,
 )
 import wordninja
+import shutil
 
 
 
@@ -556,7 +557,16 @@ def run_pipeline(pos_dir: str, neg_dir: str):
         )
 
         if 0.35 <= prob <= 0.65:
-            print("  --> [Routed to Teacher] Student uncertain. Re-querying teacher VLM...")
+            teacher_res = get_or_query_teacher(img_path)
+            if teacher_res['confidence'] >= CONFIDENCE_THRESHOLD:
+                # save image for training
+                new_image_for_training = "new_images_for_training"
+                os.makedirs(new_image_for_training, exist_ok=True)
+                shutil.copy(img_path, new_image_for_training)
+            else:
+                new_image_for_human_review = "new_images_for_human_review"
+                os.makedirs(new_image_for_human_review, exist_ok=True)
+                shutil.copy(img_path, new_image_for_human_review)
 
 def test_ood_images():
     print("\n--- Out-of-Distribution (OOD) Image Evaluation ---")
@@ -568,6 +578,7 @@ def test_ood_images():
         print(
             f"\nImage: {os.path.basename(img_path)} | Student Prob: {prob:.3f} | Pred: {pred}"
         )
+        
 
 if __name__ == "__main__":
     POS_DIR = "./train-bubbling"
